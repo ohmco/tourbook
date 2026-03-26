@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ical.js@1.5.0/build/ical.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/icalendar@6.1.11/index.global.min.js"></script>
 <style>
   :root {
@@ -466,6 +467,13 @@ async function loadCalendar() {
   const calEl = document.getElementById('calendar');
   const loading = document.getElementById('cal-loading');
   const isMobile = window.innerWidth < 640;
+
+  if (!window.ICAL) {
+    loading.textContent = 'Calendar error: ICAL library failed to load.';
+    loading.style.display = 'block';
+    calEl.style.display = 'none';
+    return;
+  }
 
   const cal = new FullCalendar.Calendar(calEl, {
     plugins: [FullCalendar.ICalendar],
