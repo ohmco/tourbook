@@ -468,6 +468,7 @@ async function loadCalendar() {
   const isMobile = window.innerWidth < 640;
 
   const cal = new FullCalendar.Calendar(calEl, {
+    plugins: [FullCalendar.ICalendar],
     initialView: isMobile ? 'listMonth' : 'dayGridMonth',
     initialDate: '2026-04-01',
     headerToolbar: { left:'prev,next', center:'title', right: isMobile ? 'listMonth,dayGridMonth' : 'dayGridMonth,listMonth' },
