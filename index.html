@@ -7,9 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+<!-- FullCalendar core + plugins (globals) -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ical.js@1.5.0/build/ical.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/icalendar@6.1.11/index.global.min.js"></script>
+
 <style>
   :root {
     --chrome:    #54524d;
@@ -476,12 +479,21 @@ async function loadCalendar() {
   }
 
   const cal = new FullCalendar.Calendar(calEl, {
-    plugins: [FullCalendar.ICalendar],
+    plugins: [FullCalendarDayGrid, FullCalendarList, FullCalendarICalendar],
     initialView: isMobile ? 'listMonth' : 'dayGridMonth',
     initialDate: '2026-04-01',
-    headerToolbar: { left:'prev,next', center:'title', right: isMobile ? 'listMonth,dayGridMonth' : 'dayGridMonth,listMonth' },
-    buttonText: { dayGridMonth:'Grid', listMonth:'List' },
-    height: 'auto', firstDay: 1, displayEventTime: false,
+    headerToolbar: {
+      left: 'prev,next',
+      center: 'title',
+      right: isMobile ? 'listMonth,dayGridMonth' : 'dayGridMonth,listMonth'
+    },
+    buttonText: {
+      dayGridMonth: 'Grid',
+      listMonth: 'List'
+    },
+    height: 'auto',
+    firstDay: 1,
+    displayEventTime: false,
     noEventsText: 'No events this period.',
     loading: (isLoading) => {
       loading.style.display = isLoading ? 'block' : 'none';
@@ -493,9 +505,14 @@ async function loadCalendar() {
       info.el.style.borderLeft = `3px solid ${color}`;
       info.el.style.color = color;
     },
-    events: { url: ICAL_WORKER_URL, format: 'ics',
-      failure: () => { loading.textContent = 'Calendar unavailable — will load when deployed.'; loading.style.display = 'block'; }
-    },
+    events: {
+      url: ICAL_WORKER_URL,
+      format: 'ics',
+      failure: () => {
+        loading.textContent = 'Calendar unavailable — will load when deployed.';
+        loading.style.display = 'block';
+      }
+    }
   });
   cal.render();
 }
@@ -504,41 +521,85 @@ loadCalendar();
 // ── DOCS ──
 const BASEROW_TOKEN = 'Qu3ab715EJKly2rFhGJagUzPbbIqOYKl';
 const DOCS_TABLE = 873338;
-const DOC_ICONS = { 'Stage plot':'🎭','Input list':'🎛','Hospitality rider':'🍽','Tech rider':'⚙️','Contract':'📄','Settlement':'💰','Insurance':'🛡','Visa':'🗂','Carnet':'📦','Rooming list':'🛏','Equipment list':'🎸','Advance':'📋','Other':'📎' };
-const TYPE_ORDER = ['Stage plot','Input list','Tech rider','Hospitality rider','Advance','Contract','Settlement','Rooming list','Equipment list','Insurance','Carnet','Visa','Other'];
+const DOC_ICONS = {
+  'Stage plot':'🎭','Input list':'🎛','Hospitality rider':'🍽','Tech rider':'⚙️',
+  'Contract':'📄','Settlement':'💰','Insurance':'🛡','Visa':'🗂','Carnet':'📦',
+  'Rooming list':'🛏','Equipment list':'🎸','Advance':'📋','Other':'📎'
+};
+const TYPE_ORDER = [
+  'Stage plot','Input list','Tech rider','Hospitality rider','Advance',
+  'Contract','Settlement','Rooming list','Equipment list','Insurance','Carnet','Visa','Other'
+];
 
 async function loadDocs() {
   const container = document.getElementById('docs-container');
   const loading = document.getElementById('docs-loading');
   try {
-    const res = await fetch(`https://api.baserow.io/api/database/rows/table/${DOCS_TABLE}/?user_field_names=true&size=100`, { headers: { Authorization: `Token ${BASEROW_TOKEN}` } });
+    const res = await fetch(
+      `https://api.baserow.io/api/database/rows/table/${DOCS_TABLE}/?user_field_names=true&size=100`,
+      { headers: { Authorization: `Token ${BASEROW_TOKEN}` } }
+    );
     const data = await res.json();
     const docs = data.results || [];
     if (docs.length === 0) return;
+
     const groups = {};
-    docs.forEach(doc => { const type = doc['Type']?.value || 'Other'; if (!groups[type]) groups[type] = []; groups[type].push(doc); });
-    loading.remove();
-    [...new Set([...TYPE_ORDER, ...Object.keys(groups)])].filter(t => groups[t]).forEach(type => {
-      const group = document.createElement('div');
-      group.className = 'doc-type-group';
-      group.innerHTML = `<div class="doc-type-label">${type}</div>`;
-      groups[type].forEach(doc => {
-        const fileUrl = (doc['File'] || [])[0]?.url || null;
-        const meta = [doc['Version'] ? `v${doc['Version']}` : '', doc['Linked day']?.[0]?.value || ''].filter(Boolean).join(' · ');
-        const row = document.createElement(fileUrl ? 'a' : 'div');
-        row.className = 'doc-row' + (fileUrl ? '' : ' no-file');
-        if (fileUrl) { row.href = fileUrl; row.target = '_blank'; row.rel = 'noopener'; }
-        row.innerHTML = `<div class="doc-icon">${DOC_ICONS[type]||'📎'}</div><div class="doc-info"><div class="doc-name">${doc['Document name']||'Untitled'}</div>${meta?`<div class="doc-meta">${meta}</div>`:''}</div><span class="doc-arrow">${fileUrl?'↗':''}</span>`;
-        group.appendChild(row);
-      });
-      container.appendChild(group);
+    docs.forEach(doc => {
+      const type = doc['Type']?.value || 'Other';
+      if (!groups[type]) groups[type] = [];
+      groups[type].push(doc);
     });
-  } catch(e) { loading.innerHTML = '<strong>Could not load documents</strong>Check your connection.'; }
+
+    loading.remove();
+
+    [...new Set([...TYPE_ORDER, ...Object.keys(groups)])]
+      .filter(t => groups[t])
+      .forEach(type => {
+        const group = document.createElement('div');
+        group.className = 'doc-type-group';
+        group.innerHTML = `<div class="doc-type-label">${type}</div>`;
+
+        groups[type].forEach(doc => {
+          const fileUrl = (doc['File'] || [])[0]?.url || null;
+          const meta = [
+            doc['Version'] ? `v${doc['Version']}` : '',
+            doc['Linked day']?.[0]?.value || ''
+          ].filter(Boolean).join(' · ');
+
+          const row = document.createElement(fileUrl ? 'a' : 'div');
+          row.className = 'doc-row' + (fileUrl ? '' : ' no-file');
+          if (fileUrl) {
+            row.href = fileUrl;
+            row.target = '_blank';
+            row.rel = 'noopener';
+          }
+
+          row.innerHTML = `
+            <div class="doc-icon">${DOC_ICONS[type]||'📎'}</div>
+            <div class="doc-info">
+              <div class="doc-name">${doc['Document name']||'Untitled'}</div>
+              ${meta ? `<div class="doc-meta">${meta}</div>` : ''}
+            </div>
+            <span class="doc-arrow">${fileUrl ? '↗' : ''}</span>
+          `;
+          group.appendChild(row);
+        });
+
+        container.appendChild(group);
+      });
+  } catch (e) {
+    loading.innerHTML = '<strong>Could not load documents</strong>Check your connection.';
+  }
 }
 
 let docsLoaded = false;
 document.querySelectorAll('.nav-tab').forEach(tab => {
-  tab.addEventListener('click', () => { if (tab.dataset.tab === 'docs' && !docsLoaded) { docsLoaded = true; loadDocs(); } });
+  tab.addEventListener('click', () => {
+    if (tab.dataset.tab === 'docs' && !docsLoaded) {
+      docsLoaded = true;
+      loadDocs();
+    }
+  });
 });
 
 // ── SHOWS & CONTACTS ──
@@ -564,16 +625,36 @@ function getCityColorVars(city) {
 }
 
 function renderTimeCell(label, value) {
-  if (!value || value === 'TBC') return `<div class="time-cell"><div class="time-label">${label}</div><div class="time-value tbc">TBC</div></div>`;
-  return `<div class="time-cell"><div class="time-label">${label}</div><div class="time-value">${value}</div></div>`;
+  if (!value || value === 'TBC') {
+    return `
+      <div class="time-cell">
+        <div class="time-label">${label}</div>
+        <div class="time-value tbc">TBC</div>
+      </div>
+    `;
+  }
+  return `
+    <div class="time-cell">
+      <div class="time-label">${label}</div>
+      <div class="time-value">${value}</div>
+    </div>
+  `;
 }
 
 async function loadShowsAndContacts() {
-  // Fetch all data
   const [tourDaysRes, venuesRes, peopleRes] = await Promise.all([
-    fetch(`https://api.baserow.io/api/database/rows/table/${TOUR_DAYS_TABLE}/?user_field_names=true&size=100`, { headers: { Authorization: `Token ${BASEROW_TOKEN}` } }),
-    fetch(`https://api.baserow.io/api/database/rows/table/${VENUES_TABLE}/?user_field_names=true&size=100`, { headers: { Authorization: `Token ${BASEROW_TOKEN}` } }),
-    fetch(`https://api.baserow.io/api/database/rows/table/${PEOPLE_TABLE}/?user_field_names=true&size=100`, { headers: { Authorization: `Token ${BASEROW_TOKEN}` } })
+    fetch(
+      `https://api.baserow.io/api/database/rows/table/${TOUR_DAYS_TABLE}/?user_field_names=true&size=100`,
+      { headers: { Authorization: `Token ${BASEROW_TOKEN}` } }
+    ),
+    fetch(
+      `https://api.baserow.io/api/database/rows/table/${VENUES_TABLE}/?user_field_names=true&size=100`,
+      { headers: { Authorization: `Token ${BASEROW_TOKEN}` } }
+    ),
+    fetch(
+      `https://api.baserow.io/api/database/rows/table/${PEOPLE_TABLE}/?user_field_names=true&size=100`,
+      { headers: { Authorization: `Token ${BASEROW_TOKEN}` } }
+    )
   ]);
 
   const [tourDaysData, venuesData, peopleData] = await Promise.all([
@@ -582,7 +663,6 @@ async function loadShowsAndContacts() {
     peopleRes.ok ? peopleRes.json().catch(() => null) : null
   ]);
 
-  // Log auth errors
   if (!tourDaysRes.ok) console.warn('Tour Days table auth error:', tourDaysRes.status);
   if (!venuesRes.ok) console.warn('Venues table auth error:', venuesRes.status);
   if (!peopleRes.ok) console.warn('People table auth error:', peopleRes.status);
@@ -591,7 +671,6 @@ async function loadShowsAndContacts() {
   const venues = venuesData?.results || [];
   const people = peopleData?.results || [];
 
-  // Build venue lookup map
   const venueMap = {};
   venues.forEach(v => {
     venueMap[v.id] = {
@@ -604,7 +683,6 @@ async function loadShowsAndContacts() {
     };
   });
 
-  // Build map of which cities each venue belongs to (from Tour Days)
   const venueCityMap = {};
   tourDays.forEach(td => {
     if (td.Venue && td.Venue[0] && td.City) {
@@ -618,7 +696,6 @@ async function loadShowsAndContacts() {
   const showsLoading = document.getElementById('shows-loading');
   showsLoading.remove();
 
-  // Group by city and separate upcoming vs past
   const cityGroups = {};
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -643,16 +720,17 @@ async function loadShowsAndContacts() {
   cityOrder.forEach(city => {
     if (!cityGroups[city] || (cityGroups[city].upcoming.length === 0 && cityGroups[city].past.length === 0)) return;
 
-    const cityColors = getCityColorVars(city);
     const groupDiv = document.createElement('div');
     groupDiv.className = `city-group city-${city}`;
 
     const header = document.createElement('div');
     header.className = 'city-header';
-    header.innerHTML = `<span class="city-dot"></span><span class="city-name">${city}</span>`;
+    header.innerHTML = `
+      <span class="city-dot"></span>
+      <span class="city-name">${city}</span>
+    `;
     groupDiv.appendChild(header);
 
-    // Render upcoming shows first, then past shows
     [...cityGroups[city].upcoming, ...cityGroups[city].past].forEach(td => {
       const venue = td.Venue && td.Venue[0] ? venueMap[td.Venue[0].id] : null;
       const types = td.Type || [];
@@ -687,7 +765,6 @@ async function loadShowsAndContacts() {
       const detailDiv = document.createElement('div');
       detailDiv.className = 'show-detail';
 
-      // Times grid
       const timesGrid = document.createElement('div');
       timesGrid.className = 'times-grid';
       timesGrid.innerHTML = [
@@ -698,55 +775,66 @@ async function loadShowsAndContacts() {
       ].join('');
       detailDiv.appendChild(timesGrid);
 
-      // Venue section
       if (venue) {
         const venueSection = document.createElement('div');
         venueSection.className = 'detail-section';
         venueSection.innerHTML = `
           <div class="detail-label">Venue</div>
-          <div class="detail-value">${venue.name}${venue.address ? '<br>' + venue.address : ''}</div>
+          <div class="detail-value">
+            ${venue.name}${venue.address ? '<br>' + venue.address : ''}
+          </div>
           ${venue.mapsLink ? `<a class="map-link" href="${venue.mapsLink}" target="_blank">↗ Open in Maps</a>` : ''}
         `;
         detailDiv.appendChild(venueSection);
       }
 
-      // Supports
       if (td['Support acts']) {
         const supportsSection = document.createElement('div');
         supportsSection.className = 'detail-section';
-        supportsSection.innerHTML = `<div class="detail-label">Supports</div><div class="supports-list">${td['Support acts']}</div>`;
+        supportsSection.innerHTML = `
+          <div class="detail-label">Supports</div>
+          <div class="supports-list">${td['Support acts']}</div>
+        `;
         detailDiv.appendChild(supportsSection);
       }
 
-      // Curfew
       if (td.Curfew) {
         const curfewSection = document.createElement('div');
         curfewSection.className = 'detail-section';
-        curfewSection.innerHTML = `<div class="detail-label">Curfew</div><div class="detail-value">${td.Curfew}</div>`;
+        curfewSection.innerHTML = `
+          <div class="detail-label">Curfew</div>
+          <div class="detail-value">${td.Curfew}</div>
+        `;
         detailDiv.appendChild(curfewSection);
       }
 
-      // Bus call
       if (td['Bus call']) {
         const busSection = document.createElement('div');
         busSection.className = 'detail-section';
-        busSection.innerHTML = `<div class="detail-label">Bus call</div><div class="detail-value">${td['Bus call']}</div>`;
+        busSection.innerHTML = `
+          <div class="detail-label">Bus call</div>
+          <div class="detail-value">${td['Bus call']}</div>
+        `;
         detailDiv.appendChild(busSection);
       }
 
-      // Lobby call
       if (td['Lobby call']) {
         const lobbySection = document.createElement('div');
         lobbySection.className = 'detail-section';
-        lobbySection.innerHTML = `<div class="detail-label">Lobby call</div><div class="detail-value">${td['Lobby call']}</div>`;
+        lobbySection.innerHTML = `
+          <div class="detail-label">Lobby call</div>
+          <div class="detail-value">${td['Lobby call']}</div>
+        `;
         detailDiv.appendChild(lobbySection);
       }
 
-      // Notes
       if (td.Notes) {
         const notesSection = document.createElement('div');
         notesSection.className = 'detail-section';
-        notesSection.innerHTML = `<div class="detail-label">Notes</div><div class="detail-value">${td.Notes}</div>`;
+        notesSection.innerHTML = `
+          <div class="detail-label">Notes</div>
+          <div class="detail-value">${td.Notes}</div>
+        `;
         detailDiv.appendChild(notesSection);
       }
 
@@ -763,7 +851,6 @@ async function loadShowsAndContacts() {
   const contactsContainer = document.getElementById('contacts-container');
   const contactsLoading = document.getElementById('contacts-loading');
 
-  // Debug: Log what we received
   console.log('People data received:', people.length, 'items');
   console.log('People sample:', people.slice(0, 3).map(p => ({ id: p.id, name: p.Name, type: p.Type })));
 
@@ -774,13 +861,11 @@ async function loadShowsAndContacts() {
 
   contactsLoading.remove();
 
-  // Group people by type (Type is a single select object on People table)
   const bandMembers = people.filter(p => p.Type && p.Type.value === 'Band');
   const crewMembers = people.filter(p => p.Type && p.Type.value === 'Crew');
 
   console.log('Band members:', bandMembers.length, 'Crew members:', crewMembers.length);
 
-  // If no contacts found, show message
   if (bandMembers.length === 0 && crewMembers.length === 0) {
     const emptyMsg = document.createElement('div');
     emptyMsg.className = 'cal-loading';
@@ -790,7 +875,6 @@ async function loadShowsAndContacts() {
     return;
   }
 
-  // Helper to render contact section
   function renderContactSection(title, items) {
     if (items.length === 0) return;
 
@@ -817,7 +901,10 @@ async function loadShowsAndContacts() {
       const headerDiv = document.createElement('div');
       headerDiv.className = 'contact-card-header';
       headerDiv.innerHTML = `
-        <div class="contact-avatar" style="background:${cityColors.cbg};border-color:${cityColors.c};color:${cityColors.c};font-size:9px">${cityCode}</div>
+        <div class="contact-avatar"
+             style="background:${cityColors.cbg};border-color:${cityColors.c};color:${cityColors.c};font-size:9px">
+          ${cityCode}
+        </div>
         <div class="contact-info">
           <div class="contact-name">${item.Name}</div>
           <div class="contact-role">${item.Role}</div>
@@ -859,11 +946,9 @@ async function loadShowsAndContacts() {
     contactsContainer.appendChild(wrap);
   }
 
-  // Render Band and Crew sections
   renderContactSection('Band', bandMembers);
   renderContactSection('Crew', crewMembers);
 
-  // Venues - only those that appear in Tour Days
   const usedVenueIds = new Set();
   tourDays.forEach(td => {
     if (td.Venue && td.Venue[0]) usedVenueIds.add(td.Venue[0].id);
@@ -886,7 +971,11 @@ async function loadShowsAndContacts() {
       const cityColors = getCityColorVars(city);
       const cityCode = city.substring(0, 3).toUpperCase();
 
-      const hasContact = venue['Production contact name'] || venue['Production contact phone'] || venue['Production contact email'];
+      const hasContact =
+        venue['Production contact name'] ||
+        venue['Production contact phone'] ||
+        venue['Production contact email'];
+
       const card = document.createElement('div');
       card.className = 'contact-card';
       if (!hasContact) card.style.cursor = 'default';
@@ -895,7 +984,10 @@ async function loadShowsAndContacts() {
       const headerDiv = document.createElement('div');
       headerDiv.className = 'contact-card-header';
       headerDiv.innerHTML = `
-        <div class="contact-avatar" style="background:${cityColors.cbg};border-color:${cityColors.c};color:${cityColors.c};font-size:9px">${cityCode}</div>
+        <div class="contact-avatar"
+             style="background:${cityColors.cbg};border-color:${cityColors.c};color:${cityColors.c};font-size:9px">
+          ${cityCode}
+        </div>
         <div class="contact-info">
           <div class="contact-name">${venue.Name}</div>
           <div class="contact-role">${venue.Address || ''}</div>
