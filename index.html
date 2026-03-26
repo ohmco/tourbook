@@ -479,7 +479,6 @@ async function loadCalendar() {
   }
 
   const cal = new FullCalendar.Calendar(calEl, {
-    plugins: [FullCalendarDayGrid, FullCalendarList, FullCalendarICalendar],
     initialView: isMobile ? 'listMonth' : 'dayGridMonth',
     initialDate: '2026-04-01',
     headerToolbar: {
