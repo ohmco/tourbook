@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bad Dreems — Ultra Dundee 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<style>
+  :root {
+    --chrome:    #54524d;
+    --chrome2:   #4a4845;
+    --chrome3:   #5e5c58;
+    --border:    #666460;
+    --page:      #f0ece5;
+    --fg:        #e8e4dc;
+    --fg2:       #d0ccc4;
+    --fg3:       #5a5852;
+    --fg-mid:    #d0ccc4;
+    --fg-dim:    #ccc8c0;
+    --adl:       #d4a843;
+    --adl-bg:    #5a4e20;
+    --adl-bdr:   #6e6030;
+    --mel:       #6b9fd4;
+    --mel-bg:    #2a3e58;
+    --mel-bdr:   #344e6e;
+    --syd:       #b06bc4;
+    --syd-bg:    #462254;
+    --syd-bdr:   #582a68;
+    --bne:       #7ab86e;
+    --bne-bg:    #264e24;
+    --bne-bdr:   #306030;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; background: #111110; }
+
+  body {
+    background: var(--page);
+    color: var(--fg);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── STICKY CHROME ── */
+  .sticky-shell {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #111110;
+  }
+
+  .header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .header-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 22px;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+
+  .header-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--fg3);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .header-date {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--fg3);
+  }
+
+  .nav {
+    display: flex;
+    background: #1a1a18;
+    border-bottom: 1px solid #2e2e2a;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+
+  .nav-tab {
+    flex-shrink: 0;
+    padding: 14px 22px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg3);
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .nav-tab.active { color: var(--fg); border-bottom-color: var(--adl); }
+
+  /* ── SECTIONS ── */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── CALENDAR ── */
+  .cal-wrap { padding: 16px; }
+
+  #calendar {
+    --fc-border-color: var(--border);
+    --fc-page-bg-color: var(--page);
+    --fc-neutral-bg-color: var(--chrome);
+    --fc-list-event-hover-bg-color: var(--chrome2);
+    --fc-today-bg-color: rgba(212,168,67,0.08);
+    --fc-event-border-color: transparent;
+    --fc-button-bg-color: var(--chrome);
+    --fc-button-border-color: var(--border);
+    --fc-button-hover-bg-color: var(--chrome2);
+    --fc-button-active-bg-color: var(--adl);
+    --fc-button-text-color: var(--fg);
+  }
+
+  .fc { font-family: 'Instrument Sans', sans-serif; font-size: 13px; color: var(--fg); }
+  .fc .fc-toolbar-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--chrome); }
+  .fc .fc-col-header-cell-cushion,
+  .fc .fc-daygrid-day-number { color: var(--fg2); font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+  .fc .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+    background: var(--adl); color: var(--chrome); border-radius: 50%;
+    width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-weight: 600;
+  }
+  .fc .fc-button {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; border-radius: 3px; padding: 6px 10px;
+  }
+  .fc-event { border-radius: 3px !important; font-size: 11px !important; font-weight: 600 !important; font-family: 'IBM Plex Mono', monospace !important; padding: 1px 4px !important; }
+  .fc-list-event-title a { color: var(--fg) !important; font-size: 13px; }
+  .fc-list-event-time { color: var(--fg-dim) !important; font-family: 'IBM Plex Mono', monospace !important; font-size: 11px !important; }
+  .fc-list-day-cushion { background: var(--chrome2) !important; font-family: 'IBM Plex Mono', monospace !important; font-size: 10px !important; letter-spacing: 0.1em !important; text-transform: uppercase !important; color: var(--fg-dim) !important; }
+  .fc-list-day-side-text { color: var(--fg-dim) !important; font-family: 'IBM Plex Mono', monospace !important; }
+
+  .cal-loading {
+    background: var(--chrome);
+    border-radius: 7px;
+    text-align: center;
+    padding: 40px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--fg-dim);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* ── SHOWS ── */
+  .shows-wrap { padding: 12px 16px; }
+  .city-group { margin-bottom: 28px; }
+
+  .city-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .city-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .city-name { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.06em; }
+
+  .city-Adelaide  { --c: var(--adl); --cbg: var(--adl-bg); --cbdr: var(--adl-bdr); }
+  .city-Melbourne { --c: var(--mel); --cbg: var(--mel-bg); --cbdr: var(--mel-bdr); }
+  .city-Sydney    { --c: var(--syd); --cbg: var(--syd-bg); --cbdr: var(--syd-bdr); }
+  .city-Brisbane  { --c: var(--bne); --cbg: var(--bne-bg); --cbdr: var(--bne-bdr); }
+
+  .city-dot  { background: var(--c, var(--fg3)); }
+  .city-name { color: var(--c, var(--fg)); }
+
+  .show-card {
+    background: var(--cbg, var(--chrome));
+    border-radius: 7px;
+    border-left: 3px solid var(--c, var(--border));
+    margin-bottom: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.14);
+    cursor: pointer;
+  }
+
+  .show-card-header { padding: 14px 14px 10px; display: flex; align-items: flex-start; gap: 10px; }
+  .show-card:active .show-card-header { filter: brightness(1.1); }
+
+  .show-tap-hint {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 14px 10px; gap: 4px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--c, var(--fg-dim)); opacity: 0.5;
+  }
+
+  .show-card.open .show-tap-hint { display: none; }
+
+  .show-date {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--fg-dim); flex-shrink: 0; padding-top: 3px; min-width: 68px;
+  }
+
+  .show-main { flex: 1; min-width: 0; }
+
+  .show-name {
+    font-size: 16px; font-weight: 700; color: var(--fg);
+    margin-bottom: 5px; line-height: 1.25;
+  }
+
+  .show-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+
+  .pill {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 2px 7px; border-radius: 3px;
+    background: var(--chrome3); color: var(--fg-dim);
+  }
+
+  .pill-city {
+    background: transparent;
+    color: var(--c, var(--fg3));
+    border: 1px solid var(--c, var(--fg3));
+    opacity: 0.8;
+  }
+
+  .show-chevron {
+    color: var(--c, var(--fg-dim)); font-size: 18px; flex-shrink: 0;
+    transition: transform 0.2s; opacity: 0.6;
+  }
+
+  .show-card.open .show-chevron { transform: rotate(90deg); opacity: 1; }
+
+  .show-detail {
+    display: none;
+    border-top: 1px solid var(--cbdr, var(--border));
+    padding: 14px 14px 16px;
+  }
+
+  .show-card.open .show-detail { display: block; }
+
+  .times-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 6px; margin-bottom: 14px;
+  }
+
+  @media (min-width: 480px) { .times-grid { grid-template-columns: repeat(4, 1fr); } }
+
+  .time-cell { background: var(--chrome3); border-radius: 5px; padding: 9px 11px; }
+  .time-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-dim); margin-bottom: 3px;
+  }
+  .time-value { font-size: 14px; font-weight: 700; color: var(--fg); }
+  .time-value.tbc { color: var(--fg3); font-weight: 400; font-size: 13px; }
+
+  .detail-section { margin-top: 12px; }
+  .detail-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--fg-dim); margin-bottom: 4px;
+  }
+  .detail-value { font-size: 13px; color: var(--fg2); line-height: 1.55; }
+
+  .map-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--c, var(--adl)); text-decoration: none;
+    margin-top: 6px; padding: 5px 10px;
+    border: 1px solid currentColor; border-radius: 3px;
+    opacity: 0.8; transition: opacity 0.15s;
+  }
+  .map-link:active { opacity: 1; }
+  .supports-list { font-size: 13px; color: var(--fg2); }
+
+  /* ── CONTACTS ── */
+  .contacts-wrap { padding: 12px 16px; }
+
+  .section-title {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--fg3);
+    padding: 18px 16px 8px;
+    position: sticky; top: 89px; background: var(--page); z-index: 10;
+  }
+
+  .contact-card {
+    background: var(--chrome); border-radius: 7px;
+    margin-bottom: 8px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.14);
+    cursor: pointer;
+  }
+
+  .contact-card-header {
+    padding: 13px 14px;
+    display: flex; gap: 12px; align-items: center;
+  }
+
+  .contact-card:active .contact-card-header { filter: brightness(1.1); }
+
+  .contact-detail {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 12px 14px 14px 64px;
+  }
+
+  .contact-card.open .contact-detail { display: block; }
+
+  .contact-chevron {
+    margin-left: auto;
+    color: var(--fg-dim); font-size: 18px; flex-shrink: 0;
+    transition: transform 0.2s; opacity: 0.5;
+  }
+
+  .contact-card.open .contact-chevron { transform: rotate(90deg); opacity: 1; }
+
+  .contact-avatar {
+    width: 38px; height: 38px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 600;
+    letter-spacing: 0.05em; flex-shrink: 0; border: 1.5px solid transparent;
+  }
+
+  .contact-info { flex: 1; min-width: 0; }
+  .contact-name { font-size: 14px; font-weight: 600; color: var(--fg); }
+  .contact-role { font-size: 12px; color: var(--fg-dim); margin-top: 1px; }
+  .contact-links { display: flex; flex-direction: column; gap: 6px; }
+  .contact-link { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--fg-mid); text-decoration: none; }
+  .contact-link:active { color: var(--fg); }
+
+  /* ── DOCS ── */
+  .docs-wrap { padding: 12px 16px; }
+
+  .docs-empty {
+    background: var(--chrome); border-radius: 7px;
+    text-align: center; padding: 48px 20px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+    color: var(--fg-dim); line-height: 2;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .docs-empty strong { color: var(--fg2); display: block; font-size: 13px; margin-bottom: 6px; }
+
+  .doc-type-group { margin-bottom: 24px; }
+  .doc-type-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--fg-dim);
+    margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+
+  .doc-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 13px; background: var(--chrome); border-radius: 6px;
+    margin-bottom: 6px; text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: filter 0.12s;
+  }
+  .doc-row:active { filter: brightness(1.1); }
+  .doc-icon { width: 34px; height: 34px; border-radius: 5px; background: var(--chrome3); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .doc-info { flex: 1; min-width: 0; }
+  .doc-name { font-size: 13px; font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc-meta { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--fg-dim); margin-top: 2px; }
+  .doc-arrow { color: var(--fg-dim); font-size: 14px; flex-shrink: 0; }
+  .doc-row.no-file { cursor: default; }
+  .doc-row.no-file .doc-arrow { opacity: 0; }
+
+  /* ── RESPONSIVE ── */
+  @media (min-width: 640px) {
+    .header { padding: 16px 28px; }
+    .shows-wrap, .contacts-wrap, .cal-wrap, .docs-wrap { padding: 20px 28px; }
+    .section-title { padding: 20px 28px 8px; top: 93px; }
+  }
+
+  @media (min-width: 960px) {
+    body { max-width: 820px; margin: 0 auto; }
+    html { background: #0a0a09; }
+  }
+
+  /* Non-show day types get desaturated city tint */
+  .show-card.type-muted .show-name     { color: var(--fg-mid); }
+  .show-card.type-muted .show-chevron  { opacity: 0.4; }
+</style>
+</head>
+<body>
+
+<div class="sticky-shell">
+  <header class="header">
+    <span class="header-title">Bad Dreems</span>
+    <span class="header-sub">Ultra Dundee 2026</span>
+    <span class="header-date">Apr – May</span>
+  </header>
+  <nav class="nav">
+    <button class="nav-tab active" data-tab="calendar">Calendar</button>
+    <button class="nav-tab" data-tab="shows">Schedule</button>
+    <button class="nav-tab" data-tab="contacts">Contacts</button>
+    <button class="nav-tab" data-tab="docs">Docs</button>
+  </nav>
+</div>
+
+<!-- CALENDAR -->
+<div id="calendar-section" class="section active">
+  <div class="cal-wrap">
+    <div class="cal-loading" id="cal-loading">Loading calendar…</div>
+    <div id="calendar" style="display:none"></div>
+  </div>
+</div>
+
+<!-- SHOWS -->
+<div id="shows-section" class="section">
+  <div class="shows-wrap">
+
+    <div class="city-group city-Adelaide">
+      <div class="city-header"><span class="city-dot"></span><span class="city-name">Adelaide</span></div>
+
+      <div class="show-card city-Adelaide type-muted" onclick="toggleCard(this)">
+        <div class="show-card-header">
+          <div class="show-date">Thu 9 Apr</div>
+          <div class="show-main">
+            <div class="show-name">Production Rehearsal</div>
+            <div class="show-meta"><span class="pill">Rehearsal</span><span class="pill">UniBar / Cloisters</span></div>
+          </div>
+          <span class="show-chevron">›</span>
+        </div>
+        <div class="show-tap-hint">tap for details</div>
+        <div class="show-detail">
+          <div class="times-grid">
+            <div class="time-cell"><div class="time-label">Load-in</div><div class="time-value tbc">TBC</div></div>
+            <div class="time-cell"><div class="time-label">Start</div><div class="time-value tbc">TBC</div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Venue</div>
+            <div class="detail-value">UniBar / Cloisters, Adelaide University<br>Level 5, Union House, North Terrace Campus</div>
+            <a class="map-link" href="https://maps.google.com/?q=Union+House+University+of+Adelaide+North+Terrace+Adelaide+SA+5000" target="_blank">↗ Open in Maps</a>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Notes</div>
+            <div class="detail-value">Line-check Thursday night, leave rig set. Full run-through Friday before show. AC available from 9pm. UniBar indoor stage available all day.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="show-card city-Adelaide" onclick="toggleCard(this)">
+        <div class="show-card-header">
+          <div class="show-date">Fri 10 Apr</div>
+          <div class="show-main">
+            <div class="show-name">Gather Sounds — Album Launch</div>
+            <div class="show-meta"><span class="pill">Festival</span><span class="pill pill-city">22:40 set</span></div>
+          </div>
+          <span class="show-chevron">›</span>
+        </div>
+        <div class="show-tap-hint">tap for details</div>
+        <div class="show-detail">
+          <div class="times-grid">
+            <div class="time-cell"><div class="time-label">Load-in</div><div class="time-value tbc">TBC</div></div>
+            <div class="time-cell"><div class="time-label">Soundcheck</div><div class="time-value tbc">TBC</div></div>
+            <div class="time-cell"><div class="time-label">Doors</div><div class="time-value">14:00</div></div>
+            <div class="time-cell"><div class="time-label">Set time</div><div class="time-value">22:40</div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Venue</div>
+            <div class="detail-value">UniBar / Cloisters, Adelaide University<br>Level 5, Union House, North Terrace Campus</div>
+            <a class="map-link" href="https://maps.google.com/?q=Union+House+University+of+Adelaide+North+Terrace+Adelaide+SA+5000" target="_blank">↗ Open in Maps</a>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Supports</div>
+            <div class="supports-list">West Thebarton · The Empty Threats · Jon Ann</div>
+          </div>
+          <div class="detail-section"><div class="detail-label">Curfew</div><div class="detail-value">00:00</div></div>
+        </div>
+      </div>
+
+      <div class="show-card city-Adelaide" onclick="toggleCard(this)">
+        <div class="show-card-header">
+          <div class="show-date">Sat 11 Apr</div>
+          <div class="show-main">
+            <div class="show-name">Gather Sounds — Festival Day</div>
+            <div class="show-meta"><span class="pill">Festival</span><span class="pill pill-city">22:40 set</span></div>
+          </div>
+          <span class="show-chevron">›</span>
+        </div>
+        <div class="show-tap-hint">tap for details</div>
+        <div class="show-detail">
+          <div class="times-grid">
+            <div class="time-cell"><div class="time-label">Load-in</div><div class="time-value tbc">TBC</div></div>
+            <div class="time-cell"><div class="time-label">Soundcheck</div><div class="time-value tbc">TBC</div></div>
+            <div class="time-cell"><div class="time-label">Doors</div><div class="time-value">14:00</div></div>
+            <div class="time-cell"><div class="time-label">Set time</div><div class="time-value">22:40</div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Venue</div>
+            <div class="detail-value">Cloisters + UniBar, Adelaide University<br>Level 5, Union House, North Terrace Campus</div>
+            <a class="map-link" href="https://maps.google.com/?q=Union+House+University+of+Adelaide+North+Terrace+Adelaide+SA+5000" target="_blank">↗ Open in Maps</a>
+          </div>
+          <div class="detail-section"><div class="detail-label">Curfew</div><div class="detail-value">00:00</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="city-group city-Melbourne">
+      <div class="city-header"><span class="city-dot"></span><span class="city-name">Melbourne</span></div>
+
+      <div class="show-card city-Melbourne" onclick="toggleCard(this)">
+        <div class="show-card-header">
+          <div class="show-date">Sat 18 Apr</div>
+          <div class="show-main">
+            <div class="show-name">Thornbury Theatre</div>
+            <div class="show-meta"><span class="pill">Show</span><span class="pill pill-city">Doors 19:00</span></div>
+          </div>
+          <span class="show-chevron">›</span>
+        </div>
+        <div class="show-tap-hint">tap for details</div>
+        <div class="show-detail">
+          <div class="times-grid">
+            <div class="time-cell"><div class="time-label">Load-in</div><div class="time-value">12:00pm</div></div>
+            <div class="time-cell"><div class="time-label">Soundcheck</div><div class="time-value">4:00pm</div></div>
+            <div class="time-cell"><div class="time-label">Doors</div><div class="time-value">7:00pm</div></div>
+            <div class="time-cell"><div class="time-label">Curfew</div><div class="time-value">1:00am</div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Venue</div>
+            <div class="detail-value">Thornbury Theatre<br>833 High St, Thornbury VIC 3071</div>
+            <a class="map-link" href="https://maps.google.com/?q=833+High+St+Thornbury+VIC+3071" target="_blank">↗ Open in Maps</a>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Supports</div>
+            <div class="supports-list">The Pretty Littles · Don't Thank Me Spank Me · Caitlin Harnett &amp; The Pony Boys</div>
+          </div>
+          <div class="detail-section"><div class="detail-label">Capacity</div><div class="detail-value">845</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="city-group city-Sydney">
+      <div class="city-header"><span class="city-dot"></span><span class="city-name">Sydney</span></div>
+
+      <div class="show-card city-Sydney" onclick="toggleCard(this)">
+        <div class="show-card-header">
+          <div class="show-date">Thu 30 Apr</div>
+          <div class="show-main">
+            <div class="show-name">Marrickville Bowling Club — Night 1</div>
+            <div class="show-meta"><span class="pill">Show</span><span class="pill pill-city">Doors 19:30</span></div>
+          </div>
+          <span class="show-chevron">›</span>
+        </div>
+        <div class="show-tap-hint">tap for details</div>
+        <div class="show-detail">
+          <div class="times-grid">
+            <div class="time-cell"><div class="time-label">Load-in</div><div class="time-value">9:00am</div></div>
+            <div class="time-cell"><div class="time-label">Soundcheck</div><div class="time-value">Discretion</div></div>
+            <div class="time-cell"><div class="time-label">Doors</div><div class="time-value">7:30pm</div></div>
+            <div class="time-cell"><div class="time-label">Curfew</div><div class="time-value">11:30pm</div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Venue</div>
+            <div class="detail-value">Marrickville Bowling Club<br>Marrickville NSW</div>
+            <a class="map-link" href="https://maps.google.com/?q=Marrickville+Bowling+Club+Marrickville+NSW" target="_blank">↗ Open in Maps</a>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Supports</div>
+            <div class="supports-list">The Pretty Littles · Don't Thank Me Spank Me · Caitlin Harnett &amp; The Pony Boys</div>
+          </div>
+          <div class="detail-section"><div class="detail-label">Note</div><div class="detail-value">Sound curfew 6:30–7:30pm — no soundcheck in that window. Capacity 300.</div></div>
+        </div>
+      </div>
+
+      <div class="show-card city-Sydney" onclick="toggleCard(this)">
+        <div class="show-card-header">
+          <div class="show-date">Fri 1 May</div>
+          <div class="show-main">
+            <div class="show-name">Marrickville Bowling Club — Night 2</div>
+            <div class="show-meta"><span class="pill">Show</span><span class="pill pill-city">Sold Out</span></div>
+          </div>
+          <span class="show-chevron">›</span>
+        </div>
+        <div class="show-tap-hint">tap for details</div>
+        <div class="show-detail">
+          <div class="times-grid">
+            <div class="time-cell"><div class="time-label">Load-in</div><div class="time-value">9:00am</div></div>
+            <div class="time-cell"><div class="time-label">Soundcheck</div><div class="time-value">Discretion</div></div>
+            <div class="time-cell"><div class="time-label">Doors</div><div class="time-value">7:30pm</div></div>
+            <div class="time-cell"><div class="time-label">Curfew</div><div class="time-value">11:30pm</div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Venue</div>
+            <div class="detail-value">Marrickville Bowling Club<br>Marrickville NSW</div>
+            <a class="map-link" href="https://maps.google.com/?q=Marrickville+Bowling+Club+Marrickville+NSW" target="_blank">↗ Open in Maps</a>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Supports</div>
+            <div class="supports-list">The Pretty Littles · Don't Thank Me Spank Me · Caitlin Harnett &amp; The Pony Boys</div>
+          </div>
+          <div class="detail-section"><div class="detail-label">Note</div><div class="detail-value">SOLD OUT — tighter guest list management. Sound curfew 6:30–7:30pm.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="city-group city-Brisbane">
+      <div class="city-header"><span class="city-dot"></span><span class="city-name">Brisbane</span></div>
+
+      <div class="show-card city-Brisbane" onclick="toggleCard(this)">
+        <div class="show-card-header">
+          <div class="show-date">Sat 2 May</div>
+          <div class="show-main">
+            <div class="show-name">The Brightside (Outdoors)</div>
+            <div class="show-meta"><span class="pill">Show</span><span class="pill">Outdoor</span><span class="pill pill-city">Doors 19:00</span></div>
+          </div>
+          <span class="show-chevron">›</span>
+        </div>
+        <div class="show-tap-hint">tap for details</div>
+        <div class="show-detail">
+          <div class="times-grid">
+            <div class="time-cell"><div class="time-label">Load-in</div><div class="time-value">3:00pm</div></div>
+            <div class="time-cell"><div class="time-label">Soundcheck</div><div class="time-value">4–6:30pm</div></div>
+            <div class="time-cell"><div class="time-label">Doors</div><div class="time-value">7:00pm</div></div>
+            <div class="time-cell"><div class="time-label">Curfew</div><div class="time-value">Midnight</div></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Venue</div>
+            <div class="detail-value">The Brightside (Outdoors)<br>Brisbane QLD</div>
+            <a class="map-link" href="https://maps.google.com/?q=The+Brightside+Brisbane+QLD" target="_blank">↗ Open in Maps</a>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Supports</div>
+            <div class="supports-list">The Pretty Littles · Don't Thank Me Spank Me · Caitlin Harnett &amp; The Pony Boys</div>
+          </div>
+          <div class="detail-section"><div class="detail-label">Note</div><div class="detail-value">Outdoor show. Capacity 600. Weather contingency TBC.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CONTACTS -->
+<div id="contacts-section" class="section">
+  <div class="section-title">Band</div>
+  <div class="contacts-wrap" style="padding-top:0">
+    <div class="contact-card" style="cursor:default">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--adl-bg);border-color:var(--adl);color:var(--adl);font-size:9px">ADL</div>
+        <div class="contact-info">
+          <div class="contact-name">Alex Cameron</div>
+          <div class="contact-role">Guitar</div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" onclick="toggleContact(this)">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--adl-bg);border-color:var(--adl);color:var(--adl);font-size:9px">ADL</div>
+        <div class="contact-info">
+          <div class="contact-name">Ben Marwe</div>
+          <div class="contact-role">Vocals</div>
+        </div>
+        <span class="contact-chevron">›</span>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-links">
+          <a class="contact-link" href="tel:+61422520845">+61 422 520 845</a>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" style="cursor:default">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--mel-bg);border-color:var(--mel);color:var(--mel);font-size:9px">MEL</div>
+        <div class="contact-info">
+          <div class="contact-name">Miles Wilson</div>
+          <div class="contact-role">Drums</div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" onclick="toggleContact(this)">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--mel-bg);border-color:var(--mel);color:var(--mel);font-size:9px">MEL</div>
+        <div class="contact-info">
+          <div class="contact-name">Deon Slaviero</div>
+          <div class="contact-role">Bass</div>
+        </div>
+        <span class="contact-chevron">›</span>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-links">
+          <a class="contact-link" href="tel:+61475554086">+61 475 554 086</a>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" style="cursor:default">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--mel-bg);border-color:var(--mel);color:var(--mel);font-size:9px">MEL</div>
+        <div class="contact-info">
+          <div class="contact-name">Mathias Dowle</div>
+          <div class="contact-role">Guitar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Crew</div>
+  <div class="contacts-wrap" style="padding-top:0">
+    <div class="contact-card" style="cursor:default">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--bne-bg);border-color:var(--bne);color:var(--bne);font-size:9px">BNE</div>
+        <div class="contact-info">
+          <div class="contact-name">Jeff Hahn</div>
+          <div class="contact-role">FOH / Production</div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" style="cursor:default">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--mel-bg);border-color:var(--mel);color:var(--mel);font-size:9px">MEL</div>
+        <div class="contact-info">
+          <div class="contact-name">Alex Beck</div>
+          <div class="contact-role">Tour Manager</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Venues</div>
+  <div class="contacts-wrap" style="padding-top:0">
+    <div class="contact-card" onclick="toggleContact(this)">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--adl-bg);border-color:var(--adl);color:var(--adl);font-size:9px">ADL</div>
+        <div class="contact-info">
+          <div class="contact-name">UniBar / Cloisters</div>
+          <div class="contact-role">Adelaide University, North Terrace</div>
+        </div>
+        <span class="contact-chevron">›</span>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-links">
+          <a class="contact-link" href="tel:+61413393580">Gareth Lewis: +61 413 393 580</a>
+          <a class="contact-link" href="mailto:gareth@gaentertainment.com.au">gareth@gaentertainment.com.au</a>
+          <a class="contact-link" href="mailto:gus@gaentertainment.com.au">gus@gaentertainment.com.au</a>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" onclick="toggleContact(this)">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--mel-bg);border-color:var(--mel);color:var(--mel);font-size:9px">MEL</div>
+        <div class="contact-info">
+          <div class="contact-name">Thornbury Theatre</div>
+          <div class="contact-role">833 High St, Thornbury VIC 3071</div>
+        </div>
+        <span class="contact-chevron">›</span>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-links">
+          <a class="contact-link" href="tel:0422049464">Kate Marning: 0422 049 464</a>
+          <a class="contact-link" href="mailto:kate@nighteatsday.com">kate@nighteatsday.com</a>
+          <a class="contact-link" href="tel:0417540402">Aloke Kumar: 0417 540 402</a>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" onclick="toggleContact(this)">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--syd-bg);border-color:var(--syd);color:var(--syd);font-size:9px">SYD</div>
+        <div class="contact-info">
+          <div class="contact-name">Marrickville Bowling Club</div>
+          <div class="contact-role">Marrickville NSW</div>
+        </div>
+        <span class="contact-chevron">›</span>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-links">
+          <a class="contact-link" href="tel:0415529948">Emmah McNamara: 0415 529 948</a>
+          <a class="contact-link" href="mailto:info@mvillebowling.com.au">info@mvillebowling.com.au</a>
+          <a class="contact-link" href="tel:0417248258">Richard Ball: 0417 248 258</a>
+        </div>
+      </div>
+    </div>
+    <div class="contact-card" onclick="toggleContact(this)">
+      <div class="contact-card-header">
+        <div class="contact-avatar" style="background:var(--bne-bg);border-color:var(--bne);color:var(--bne);font-size:9px">BNE</div>
+        <div class="contact-info">
+          <div class="contact-name">The Brightside</div>
+          <div class="contact-role">Brisbane QLD</div>
+        </div>
+        <span class="contact-chevron">›</span>
+      </div>
+      <div class="contact-detail">
+        <div class="contact-links">
+          <a class="contact-link" href="tel:0467699905">Braydon Ritson: 0467 699 905</a>
+          <a class="contact-link" href="mailto:braydon@socialstate.com.au">braydon@socialstate.com.au</a>
+          <a class="contact-link" href="tel:0411589464">Tash Maiden: 0411 589 464</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCS -->
+<div id="docs-section" class="section">
+  <div class="docs-wrap" id="docs-container">
+    <div class="docs-empty" id="docs-loading">
+      <strong>No documents yet</strong>
+      Stage plots, tech riders, and other files<br>added by your TM will appear here.
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TABS ──
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab + '-section').classList.add('active');
+  });
+});
+
+// ── SHOW CARDS ──
+function toggleCard(card) { card.classList.toggle('open'); }
+function toggleContact(card) { card.classList.toggle('open'); }
+
+// ── CALENDAR ──
+const ICAL_URL = 'https://user.fm/calendar/v1-29f5e1d82a0911fa92c1cd3aaeabacce/Ultra%20Dundee%20Tour.ics';
+const CORS_PROXY = 'https://corsproxy.io/?url=';
+const CITY_COLORS = { Adelaide:'#d4a843', Melbourne:'#6b9fd4', Sydney:'#b06bc4', Brisbane:'#7ab86e' };
+
+function guessColor(title) {
+  for (const [city, color] of Object.entries(CITY_COLORS)) {
+    if (title.includes(city)) return color;
+  }
+  if (/rehearsal/i.test(title)) return '#d4a843';
+  if (/festival|gather sounds/i.test(title)) return '#b06bc4';
+  if (/travel|flight|→/i.test(title)) return '#5a5852';
+  if (/promo|interview|release/i.test(title)) return '#7ab86e';
+  return '#6b9fd4';
+}
+
+async function loadCalendar() {
+  const calEl = document.getElementById('calendar');
+  const loading = document.getElementById('cal-loading');
+  const isMobile = window.innerWidth < 640;
+
+  const cal = new FullCalendar.Calendar(calEl, {
+    initialView: isMobile ? 'listMonth' : 'dayGridMonth',
+    initialDate: '2026-04-01',
+    headerToolbar: { left:'prev,next', center:'title', right: isMobile ? 'listMonth,dayGridMonth' : 'dayGridMonth,listMonth' },
+    buttonText: { dayGridMonth:'Grid', listMonth:'List' },
+    height: 'auto', firstDay: 1, displayEventTime: false,
+    noEventsText: 'No events this period.',
+    loading: (isLoading) => {
+      loading.style.display = isLoading ? 'block' : 'none';
+      calEl.style.display = isLoading ? 'none' : 'block';
+    },
+    eventDidMount: (info) => {
+      const color = guessColor(info.event.title);
+      info.el.style.backgroundColor = color + '22';
+      info.el.style.borderLeft = `3px solid ${color}`;
+      info.el.style.color = color;
+    },
+    sources: [{ url: CORS_PROXY + encodeURIComponent(ICAL_URL), format:'ics',
+      failure: () => { loading.textContent = 'Calendar unavailable — will load when deployed.'; loading.style.display = 'block'; }
+    }],
+  });
+  cal.render(); calEl.style.display = 'none';
+}
+loadCalendar();
+
+// ── DOCS ──
+const BASEROW_TOKEN = 'Qu3ab715EJKly2rFhGJagUzPbbIqOYKl';
+const DOCS_TABLE = 873338;
+const DOC_ICONS = { 'Stage plot':'🎭','Input list':'🎛','Hospitality rider':'🍽','Tech rider':'⚙️','Contract':'📄','Settlement':'💰','Insurance':'🛡','Visa':'🗂','Carnet':'📦','Rooming list':'🛏','Equipment list':'🎸','Advance':'📋','Other':'📎' };
+const TYPE_ORDER = ['Stage plot','Input list','Tech rider','Hospitality rider','Advance','Contract','Settlement','Rooming list','Equipment list','Insurance','Carnet','Visa','Other'];
+
+async function loadDocs() {
+  const container = document.getElementById('docs-container');
+  const loading = document.getElementById('docs-loading');
+  try {
+    const res = await fetch(`https://api.baserow.io/api/database/rows/table/${DOCS_TABLE}/?user_field_names=true&size=100`, { headers: { Authorization: `Token ${BASEROW_TOKEN}` } });
+    const data = await res.json();
+    const docs = data.results || [];
+    if (docs.length === 0) return;
+    const groups = {};
+    docs.forEach(doc => { const type = doc['Type']?.value || 'Other'; if (!groups[type]) groups[type] = []; groups[type].push(doc); });
+    loading.remove();
+    [...new Set([...TYPE_ORDER, ...Object.keys(groups)])].filter(t => groups[t]).forEach(type => {
+      const group = document.createElement('div');
+      group.className = 'doc-type-group';
+      group.innerHTML = `<div class="doc-type-label">${type}</div>`;
+      groups[type].forEach(doc => {
+        const fileUrl = (doc['File'] || [])[0]?.url || null;
+        const meta = [doc['Version'] ? `v${doc['Version']}` : '', doc['Linked day']?.[0]?.value || ''].filter(Boolean).join(' · ');
+        const row = document.createElement(fileUrl ? 'a' : 'div');
+        row.className = 'doc-row' + (fileUrl ? '' : ' no-file');
+        if (fileUrl) { row.href = fileUrl; row.target = '_blank'; row.rel = 'noopener'; }
+        row.innerHTML = `<div class="doc-icon">${DOC_ICONS[type]||'📎'}</div><div class="doc-info"><div class="doc-name">${doc['Document name']||'Untitled'}</div>${meta?`<div class="doc-meta">${meta}</div>`:''}</div><span class="doc-arrow">${fileUrl?'↗':''}</span>`;
+        group.appendChild(row);
+      });
+      container.appendChild(group);
+    });
+  } catch(e) { loading.innerHTML = '<strong>Could not load documents</strong>Check your connection.'; }
+}
+
+let docsLoaded = false;
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => { if (tab.dataset.tab === 'docs' && !docsLoaded) { docsLoaded = true; loadDocs(); } });
+});
+</script>
+</body>
+</html>
