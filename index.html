@@ -490,7 +490,7 @@ async function loadCalendar() {
       failure: () => { loading.textContent = 'Calendar unavailable — will load when deployed.'; loading.style.display = 'block'; }
     },
   });
-  cal.render(); calEl.style.display = 'none';
+  cal.render();
 }
 loadCalendar();
 
