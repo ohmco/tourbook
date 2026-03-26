@@ -448,8 +448,7 @@ function toggleCard(card) { card.classList.toggle('open'); }
 function toggleContact(card) { card.classList.toggle('open'); }
 
 // ── CALENDAR ──
-const ICAL_URL = 'https://user.fm/calendar/v1-29f5e1d82a0911fa92c1cd3aaeabacce/Ultra%20Dundee%20Tour.ics';
-const CORS_PROXY = 'https://corsproxy.io/?url=';
+const ICAL_WORKER_URL = 'https://ical-proxy.amcf.workers.dev';
 const CITY_COLORS = { Adelaide:'#d4a843', Melbourne:'#6b9fd4', Sydney:'#b06bc4', Brisbane:'#7ab86e' };
 
 function guessColor(title) {
@@ -485,7 +484,7 @@ async function loadCalendar() {
       info.el.style.borderLeft = `3px solid ${color}`;
       info.el.style.color = color;
     },
-    sources: [{ url: CORS_PROXY + encodeURIComponent(ICAL_URL), format:'ics',
+    sources: [{ url: ICAL_WORKER_URL, format:'ics',
       failure: () => { loading.textContent = 'Calendar unavailable — will load when deployed.'; loading.style.display = 'block'; }
     }],
   });
@@ -610,21 +609,30 @@ async function loadShowsAndContacts() {
   const showsLoading = document.getElementById('shows-loading');
   showsLoading.remove();
 
-  // Sort by date
-  tourDays.sort((a, b) => new Date(a.Date) - new Date(b.Date));
-
-  // Group by city
+  // Group by city and separate upcoming vs past
   const cityGroups = {};
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   tourDays.forEach(td => {
     const city = td.City;
     if (!city) return;
-    if (!cityGroups[city]) cityGroups[city] = [];
-    cityGroups[city].push(td);
+    if (!cityGroups[city]) cityGroups[city] = { upcoming: [], past: [] };
+
+    const showDate = new Date(td.Date);
+    showDate.setHours(0, 0, 0, 0);
+    const isPast = showDate < today;
+
+    if (isPast) {
+      cityGroups[city].past.push(td);
+    } else {
+      cityGroups[city].upcoming.push(td);
+    }
   });
 
   const cityOrder = ['Adelaide', 'Melbourne', 'Sydney', 'Brisbane'];
   cityOrder.forEach(city => {
-    if (!cityGroups[city] || cityGroups[city].length === 0) return;
+    if (!cityGroups[city] || (cityGroups[city].upcoming.length === 0 && cityGroups[city].past.length === 0)) return;
 
     const cityColors = getCityColorVars(city);
     const groupDiv = document.createElement('div');
@@ -635,14 +643,18 @@ async function loadShowsAndContacts() {
     header.innerHTML = `<span class="city-dot"></span><span class="city-name">${city}</span>`;
     groupDiv.appendChild(header);
 
-    cityGroups[city].forEach(td => {
+    // Render upcoming shows first, then past shows
+    [...cityGroups[city].upcoming, ...cityGroups[city].past].forEach(td => {
       const venue = td.Venue && td.Venue[0] ? venueMap[td.Venue[0].id] : null;
       const types = td.Type || [];
       const firstType = types[0]?.value || 'Show';
       const isMuted = types.some(t => t.value === 'Rehearsal' || t.value === 'Travel');
+      const showDate = new Date(td.Date);
+      showDate.setHours(0, 0, 0, 0);
+      const isPastDate = showDate < today;
 
       const card = document.createElement('div');
-      card.className = `show-card city-${city}${isMuted ? ' type-muted' : ''}`;
+      card.className = `show-card city-${city}${isMuted || isPastDate ? ' type-muted' : ''}`;
       card.onclick = function() { toggleCard(this); };
 
       const headerDiv = document.createElement('div');
@@ -741,11 +753,33 @@ async function loadShowsAndContacts() {
   // ── RENDER CONTACTS ──
   const contactsContainer = document.getElementById('contacts-container');
   const contactsLoading = document.getElementById('contacts-loading');
+
+  // Debug: Log what we received
+  console.log('People data received:', people.length, 'items');
+  console.log('People sample:', people.slice(0, 3).map(p => ({ id: p.id, name: p.Name, type: p.Type })));
+
+  if (!people || people.length === 0) {
+    contactsLoading.textContent = 'No contacts available.';
+    return;
+  }
+
   contactsLoading.remove();
 
-  // Group people by type
-  const bandMembers = people.filter(p => p.Type && p.Type.some(t => t.value === 'Band'));
-  const crewMembers = people.filter(p => p.Type && p.Type.some(t => t.value === 'Crew'));
+  // Group people by type (Type is a single select object on People table)
+  const bandMembers = people.filter(p => p.Type && p.Type.value === 'Band');
+  const crewMembers = people.filter(p => p.Type && p.Type.value === 'Crew');
+
+  console.log('Band members:', bandMembers.length, 'Crew members:', crewMembers.length);
+
+  // If no contacts found, show message
+  if (bandMembers.length === 0 && crewMembers.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.className = 'cal-loading';
+    emptyMsg.style.margin = '40px 0';
+    emptyMsg.textContent = 'No contacts available';
+    contactsContainer.appendChild(emptyMsg);
+    return;
+  }
 
   // Helper to render contact section
   function renderContactSection(title, items) {
